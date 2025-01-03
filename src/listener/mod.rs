@@ -14,10 +14,10 @@ use polodb_core::{Collection, CollectionT};
 use workflow_core::channel::{Channel, DuplexChannel};
 use workflow_core::prelude::spawn;
 use workflow_log::{log_error, log_info};
-use crate::{select_biased, Inner};
+use crate::{select_biased};
 use crate::message::Message;
 use futures::FutureExt;
-
+use crate::inner::Inner;
 // Example primitive that manages an RPC connection and
 // runs its own event task to handle RPC connection
 // events and node notifications we subscribe to.

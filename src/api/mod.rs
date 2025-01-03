@@ -3,9 +3,10 @@ use axum::extract::{Query, State};
 use axum::Json;
 use polodb_core::bson::doc;
 use polodb_core::{Collection, CollectionT};
-use crate::{AppState, GetMessagesQueryParameters};
+use crate::{AppState};
 use crate::message::Message;
-use crate::GetPeersQueryParameters::*;
+use crate::query_parameters::get_message_query_parameters::GetMessagesQueryParameters;
+use crate::query_parameters::get_peers_query_parameters::*;
 
 ///GET Calls
 // REST API call to retrieve messages of a specific conversation (http://localhost:3000/get-messages?address_1=abc&address_2=def)

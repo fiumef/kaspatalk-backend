@@ -1,12 +1,8 @@
 #![allow(warnings)]
 
 use axum::{
-    extract,
-    extract::{Path, Query, State},
-    handler,
-    http::StatusCode,
-    routing::{get, post},
-    Json, Router,
+    routing::get
+    , Router,
 };
 use clap::Parser;
 pub use futures::{select_biased, FutureExt, Stream, StreamExt, TryStreamExt};
@@ -14,11 +10,10 @@ use kaspa_notify::notification::test_helpers::Data;
 use polodb_core::bson::doc;
 use polodb_core::{Collection, CollectionT, Database};
 use serde::{Deserialize, Serialize};
-use std::sync::atomic::AtomicBool;
-use std::sync::{Arc, Mutex};
+use std::sync::Arc;
 // We use workflow-rs primitives for async task and channel management
 // as they function uniformly in tokio as well as WASM32 runtimes.
-use workflow_core::channel::{oneshot, Channel, DuplexChannel};
+use workflow_core::channel::oneshot;
 use workflow_log::prelude::*;
 
 // Kaspa RPC primitives
@@ -32,37 +27,13 @@ mod listener;
 use listener::*;
 mod api;
 use api::*;
-mod GetPeersQueryParameters;
 mod cli_parser;
-use cli_parser::*;
+mod inner;
+mod query_parameters;
 
-struct Inner {
-    // task control duplex channel - a pair of channels where sender
-    // is used to signal an async task termination request and receiver
-    // is used to signal task termination completion.
-    task_ctl: DuplexChannel<()>,
-    // Kaspa wRPC client instance
-    client: Arc<KaspaRpcClient>,
-    // our own view on the connection state
-    is_connected: AtomicBool,
-    // channel supplied to the notification subsystem
-    // to receive the node notifications we subscribe to
-    notification_channel: Channel<Notification>,
-    // listener id used to manage notification scopes
-    // we can have multiple IDs for different scopes
-    // paired with multiple notification channels
-    listener_id: Mutex<Option<ListenerId>>,
-    stored_messages: Collection<Message>,
-}
 
 struct AppState {
     database: Database,
-}
-
-#[derive(Deserialize, Clone)]
-struct GetMessagesQueryParameters {
-    address_1: String,
-    address_2: String,
 }
 
 #[tokio::main]
